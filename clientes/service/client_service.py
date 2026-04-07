@@ -83,6 +83,24 @@ class ClientService:
             logger.error(f"Internal failure while fetching client by ID ({client_id}): {str(e)}")
             raise InternalServerError
     
+    def get_client_by_email(self, email: str):
+        try:
+            email = email.replace(" ", "").strip().lower()
+            logger.info(f"Fetching client by Email: {email}")
+            
+            client = self.repo.get_by_email(email)
+
+            if not client or not client.active:
+                logger.debug(f"Client not found or is inactive for Email: {email}")
+                return None
+            
+            logger.debug(f"Client successfully found for Email: {email}")
+            return client
+
+        except Exception as e:
+            logger.error(f"Internal failure while fetching client by Email ({email}): {str(e)}")
+            raise InternalServerError
+    
     def update_client(self, client_id: str, update_data: ClientDomain):
         try:
             client_id = client_id.replace(" ", "").strip()

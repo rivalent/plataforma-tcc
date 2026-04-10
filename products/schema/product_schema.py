@@ -1,0 +1,15 @@
+from pydantic import BaseModel, Field
+from typing import Optional
+from decimal import Decimal
+
+class ProductCreateRequest(BaseModel):
+    name: str = Field(..., min_length=3, max_length=100)
+    desc: str = Field(..., max_length=1000)
+    price: Decimal = Field(..., ge=0, decimal_places=2)
+    quantity: int = Field(..., ge=0)
+
+class ProductUpdateRequest(BaseModel):
+    name: Optional[str] = Field(None, min_length=3, max_length=100)
+    desc: Optional[str] = Field(None, max_length=1000)
+    price: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
+    quantity: Optional[int] = Field(None, ge=0)

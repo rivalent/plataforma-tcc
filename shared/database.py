@@ -2,8 +2,9 @@ import sqlite3
 from pathlib import Path
 
 class SqliteManager:
-    def __init__(self):
-        self.db_path = Path(__file__).parent.parent / 'database' / 'db_clients.db'
+    def __init__(self, target_folder: str, db_name: str):
+        self.db_path = Path(__file__).parent.parent / target_folder / db_name
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
     def get_connection(self):
         conn = sqlite3.connect(self.db_path)

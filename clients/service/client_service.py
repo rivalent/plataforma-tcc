@@ -3,7 +3,7 @@ from clients.domain.client_domain import ClientDomain
 from datetime import date, datetime, timezone
 from ulid import ULID
 from clients.exceptions import ClientAlreadyExists, InternalServerError, ClientNotFound
-from clients.config.logger_config import LoggerFactory
+from shared.logger_config import LoggerFactory
 
 logger = LoggerFactory.get_logger("ClientServiceLogger")
 
@@ -59,7 +59,7 @@ class ClientService:
 
             count = len(list_clients) if list_clients else 0
             logger.debug(f"Successfully retrieved {count} clients")
-            
+
             return list_clients
         except Exception as e:
             logger.error(f"Internal failure while fetching all clients: {str(e)}")

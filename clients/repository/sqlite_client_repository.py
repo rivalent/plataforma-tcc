@@ -1,7 +1,7 @@
-from clients.config.database import SqliteManager
+from shared.database import SqliteManager
 from clients.domain.client_domain import ClientDomain
 from clients.exceptions import DatabaseError
-from clients.config.logger_config import LoggerFactory
+from shared.logger_config import LoggerFactory
 
 logger = LoggerFactory.get_logger("ClientRepositoryLogger")
 
@@ -157,6 +157,7 @@ class SqliteClientRepository:
             )
 
             self.conn.execute_write(query, params)
+            return client
 
         except Exception as e:
             logger.error(f"Database error while updating client ({client.id}): {str(e)}")
@@ -177,9 +178,3 @@ class SqliteClientRepository:
         except Exception as e:
             logger.error(f"Database error while logically deleting client ({client_id}): {str(e)}")
             raise DatabaseError("Failed to delete client in database.")
-
-# if __name__ == "__main__":
-#     manager = SqliteManager()
-#     repo = SqliteClientRepository(conn=manager)
-#     repo.create_tables()
-#     logging.info("Sucess Created Table Clients")

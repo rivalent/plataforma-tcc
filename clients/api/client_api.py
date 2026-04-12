@@ -1,15 +1,15 @@
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
-from clients.config.database import SqliteManager
+from shared.database import SqliteManager
 from clients.repository.sqlite_client_repository import SqliteClientRepository
 from clients.service.client_service import ClientService
 from clients.schema.client_schema import ClientCreateRequest, ClientUpdateRequest
 from clients.exceptions import ClientAlreadyExists, InternalServerError, ClientNotFound
-from clients.config.response_formatter import format_response
+from shared.response_formatter import format_response
 from time import time
 
 router = APIRouter()
-manager = SqliteManager()
+manager = SqliteManager("clients/database", "db_clients.db")
 repo = SqliteClientRepository(manager)
 service = ClientService(repo)
 

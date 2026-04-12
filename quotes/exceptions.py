@@ -8,6 +8,7 @@ class DatabaseError(BaseError):
         self.message = message
         super().__init__(self.message)
 
-class ProductNotFound(BaseError):
-    def __init__(self, identifier: str):
-        super().__init__(f"Product not found or inactive: {identifier}")
+class QuoteServiceUnavailable(BaseError):
+    def __init__(self, message: str = "The quote service is currently unavailable."):
+        self.message = message
+        super().__init__(self.message)

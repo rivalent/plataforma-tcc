@@ -6,6 +6,8 @@ from products.api.product_api import router as product_router
 from products.repository.sqlite_product_repository import SqliteProductRepository
 from quotes.api.quote_api import router as quote_router
 from quotes.repository.sqlite_quote_repository import SqliteQuoteRepository
+from sales.api.sale_api import router as sale_router
+from sales.repository.sqlite_sales_repository import SqliteSalesRepository
 from shared.database import SqliteManager
 
 @asynccontextmanager
@@ -24,6 +26,10 @@ async def lifespan(app: FastAPI):
     quote_repo = SqliteQuoteRepository(quote_manager)
     quote_repo.create_tables()
 
+    sales_manager = SqliteManager("sales/database", "db_sales.db")
+    sales_repo = SqliteSalesRepository(sales_manager)
+    sales_repo.create_tables()
+
     print("Ready-to-use databases!")
     yield  
 
@@ -32,7 +38,8 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(client_router, tags=["Clients"])
 app.include_router(product_router, tags=["Products"])
 app.include_router(quote_router, tags=["Quotes"])
+app.include_router(sale_router, tags=["Sales"])
 
 @app.get("/")
 def home():
-    return {"": "Lee, oh Lee, o que foi que eu fiz? Olha só para você, nem está consciente e continua se empenhando em mostrar para o mundo o que pode fazer."}
+    return {"Guy": "Lee, oh Lee, o que foi que eu fiz? Olha só para você, nem está consciente e continua se empenhando em mostrar para o mundo o que pode fazer."}

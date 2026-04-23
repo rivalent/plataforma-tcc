@@ -59,7 +59,7 @@ def get_all_client():
             content=format_response(start_time=start_time, message="Internal server error", error=str(e))
         )
 
-@router.get('/clients/id/{client_id}', status_code=status.HTTP_200_OK)
+@router.get('/clients/{client_id}', status_code=status.HTTP_200_OK)
 def get_client_by_id(client_id: str):
     start_time = time()
     try:
@@ -81,6 +81,11 @@ def get_client_by_id(client_id: str):
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
             content=format_response(start_time=start_time, message="Internal server error", error=str(e))
+        )
+    except ClientNotFound as e:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            content=format_response(start_time=start_time, message="Request failed", error=str(e))
         )
 
 @router.get('/clients/email/{client_email}', status_code=status.HTTP_200_OK)

@@ -129,6 +129,32 @@ class ProductService:
             logger.error(f"Internal failure while updating product ({product_id}): {str(e)}")
             raise e
     
+    def update_stock(self, product_id: str, new_quantity: int):
+        try:
+            product_id = product_id.replace(" ", "").strip()
+            logger.info(f"Starting specific stock update routine for product: {product_id}. New quantity: {new_quantity}")
+
+            existing_product = self.repo.get_by_id(product_id)
+            if not existing_product or not existing_product.active:
+                logger.warning(f"Stock update interrupted: Product not found or inactive ({product_id})")
+                raise ProductNotFound(product_id)
+
+            new_updated_at = datetime.now(timezone.utc)
+
+            self.repo.update_stock(product_id, new_quantity, new_updated_at)
+            
+            existing_product.quantity = new_quantity
+            existing_product.updated_at = new_updated_at
+            
+            logger.info(f"Stock updated successfully for product: {product_id}")
+            return existing_product
+
+        except ProductNotFound as e:
+            raise e
+        except Exception as e:
+            logger.error(f"Internal failure while updating stock for product ({product_id}): {str(e)}")
+            raise e
+    
     def delete_product(self, product_id: str):
         try:
             product_id = product_id.replace(" ", "").strip()
@@ -150,10 +176,8 @@ class ProductService:
 
         except ProductNotFound as e:
             raise e
-
         except DatabaseError as e:
             raise e
-
         except Exception as e:
             logger.error(f"Internal failure while deleting product ({product_id}): {str(e)}")
             raise e

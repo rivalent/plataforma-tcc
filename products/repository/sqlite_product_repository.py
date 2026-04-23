@@ -3,6 +3,7 @@ from products.exceptions import DatabaseError
 from shared.database import SqliteManager
 from shared.logger_config import LoggerFactory
 from typing import Optional
+from datetime import datetime, timezone
 
 logger = LoggerFactory.get_logger("ProductRepositoryLogger")
 
@@ -165,6 +166,22 @@ class SqliteProductRepository:
         except Exception as e:
             logger.error(f"Database error while updating product ({product.id}): {str(e)}")
             raise DatabaseError("Failed to update product in database.")
+    
+    def update_stock(self, product_id: str, new_quantity: int, updated_at: datetime):
+        try:
+            logger.debug(f"Updating stock for product {product_id} to new quantity: {new_quantity}")
+            query = """
+                UPDATE products
+                SET quantity = ?, updated_at = ?
+                WHERE id = ? AND active = 1
+            """
+            params = (new_quantity, updated_at, product_id)
+            self.conn.execute_write(query, params)
+            return True
+
+        except Exception as e:
+            logger.error(f"Database error while updating stock for product ({product_id}): {str(e)}")
+            raise DatabaseError("Failed to update product stock in database.")
 
     def delete(self, product_id):
         try:

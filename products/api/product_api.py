@@ -1,6 +1,6 @@
 from products.repository.sqlite_product_repository import SqliteProductRepository
 from products.service.product_service import ProductService
-from products.schema.product_schema import ProductCreateRequest, ProductUpdateRequest
+from products.schema.product_schema import ProductCreateRequest, ProductUpdateRequest, ProductStockUpdateRequest
 from products.exceptions import ProductNotFound, DatabaseError
 from shared.response_formatter import format_response
 from shared.database import SqliteManager
@@ -118,6 +118,30 @@ def update_product(product_id: str, product_data: ProductUpdateRequest):
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
             content=format_response(start_time=start_time, message="Unexpected error", error=str(e))
+        )
+
+@router.put('/products/{product_id}/stock', status_code=status.HTTP_200_OK)
+def update_product_stock(product_id: str, stock_data: ProductStockUpdateRequest):
+    start_time = time()
+    try:
+        service.update_stock(product_id, stock_data.quantity)
+        updated_product = service.get_by_id(product_id)
+
+        return format_response(
+            data=updated_product, 
+            start_time=start_time, 
+            message="Stock updated successfully via Integration."
+        )
+
+    except ProductNotFound as e:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            content=format_response(start_time=start_time, message="Product not found!", error=str(e))
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            content=format_response(start_time=start_time, message="Internal Error", error=str(e))
         )
 
 @router.delete('/products/{product_id}', status_code=status.HTTP_200_OK)

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  clients-api:
+    build: .
+    container_name: tcc_clients
+    command: uvicorn clients.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8001:8000"
+
+  products-api:
+    build: .
+    container_name: tcc_products
+    command: uvicorn products.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8002:8000"
+
+  quotes-api:
+    build: .
+    container_name: tcc_quotes
+    command: uvicorn quotes.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8003:8000"
+
+  sales-api:
+    build: .
+    container_name: tcc_sales
+    command: uvicorn sales.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8004:8000"

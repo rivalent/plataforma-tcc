@@ -19,6 +19,9 @@ class ProductRepository(Protocol):
 
     def update(self, product: ProductDomain) -> Optional[ProductDomain]:
         pass
+    
+    def update_stock(self, product_id: str, new_quantity: int) -> Optional[ProductDomain]:
+        pass
 
     def delete(self, id: str) -> bool:
         pass

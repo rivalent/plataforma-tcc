@@ -12,3 +12,6 @@ class ProductUpdateRequest(BaseModel):
     desc: Optional[str] = Field(None, max_length=1000)
     price: float = Field(..., ge=0)
     quantity: Optional[int] = Field(None, ge=0)
+
+class ProductStockUpdateRequest(BaseModel):
+    quantity: int = Field(..., ge=0)

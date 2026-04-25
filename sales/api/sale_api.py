@@ -2,7 +2,12 @@ from sales.repository.sqlite_sales_repository import SqliteSalesRepository
 from sales.schema.sales_schema import SaleCreateRequest, SaleItemCreateRequest
 from sales.service.sales_service import SalesService
 from sales.gateway.api_gateway import APIGateway
-from sales.exceptions import SaleNotFound, DatabaseError
+from sales.exceptions import (
+    SaleNotFound, DatabaseError, ClientIntegrationError,
+    ProductIntegrationError, InsufficientStockIntegration,
+    ExternalServiceUnavailable, InvalidSaleState,
+    EmptySaleCannotBeCompleted
+)
 from shared.database import SqliteManager
 from shared.response_formatter import format_response
 from time import time
@@ -40,6 +45,21 @@ def create_sale(sale_data: SaleCreateRequest):
             message="Sale successfully created"
         )
 
+    except (ClientIntegrationError, ProductIntegrationError) as e:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=format_response(start_time=start_time, message="Request failed", error=str(e))
+        )
+    except InsufficientStockIntegration as e:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content=format_response(start_time=start_time, message="Request failed", error=str(e))
+        )
+    except ExternalServiceUnavailable as e:
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content=format_response(start_time=start_time, message="External service unavailable", error=str(e))
+        )
     except SaleNotFound as e:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND, 
@@ -167,12 +187,42 @@ def finish_sale(sale_id: str):
 
     except SaleNotFound as e:
         return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND, 
+            status_code=status.HTTP_404_NOT_FOUND,
             content=format_response(start_time=start_time, message="Sale not found", error=str(e))
+        )
+    except InvalidSaleState as e:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content=format_response(start_time=start_time, message="Invalid sale state", error=str(e))
+        )
+    except EmptySaleCannotBeCompleted as e:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=format_response(start_time=start_time, message="Cannot complete sale", error=str(e))
+        )
+    except (ProductIntegrationError, ClientIntegrationError) as e:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=format_response(start_time=start_time, message="Request failed", error=str(e))
+        )
+    except InsufficientStockIntegration as e:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content=format_response(start_time=start_time, message="Insufficient stock", error=str(e))
+        )
+    except ExternalServiceUnavailable as e:
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content=format_response(start_time=start_time, message="External service unavailable", error=str(e))
+        )
+    except DatabaseError as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=format_response(start_time=start_time, message="Internal server error", error=str(e))
         )
     except Exception as e:
         return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST, 
+            status_code=status.HTTP_400_BAD_REQUEST,
             content=format_response(start_time=start_time, message="The sale could not be completed", error=str(e))
         )
 
@@ -190,11 +240,26 @@ def cancel_sale(sale_id: str):
 
     except SaleNotFound as e:
         return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND, 
+            status_code=status.HTTP_404_NOT_FOUND,
             content=format_response(start_time=start_time, message="Sale not found", error=str(e))
+        )
+    except InvalidSaleState as e:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content=format_response(start_time=start_time, message="Invalid sale state", error=str(e))
+        )
+    except ExternalServiceUnavailable as e:
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content=format_response(start_time=start_time, message="External service unavailable", error=str(e))
+        )
+    except DatabaseError as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=format_response(start_time=start_time, message="Internal server error", error=str(e))
         )
     except Exception as e:
         return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST, 
+            status_code=status.HTTP_400_BAD_REQUEST,
             content=format_response(start_time=start_time, message="The sale could not be canceled", error=str(e))
         )

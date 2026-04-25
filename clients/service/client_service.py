@@ -50,7 +50,7 @@ class ClientService:
 
         except Exception as e:
             logger.error(f"Internal failure while trying to register client: {str(e)}")
-            raise InternalServerError
+            raise InternalServerError()
 
     def get_all_client(self):
         try:
@@ -63,7 +63,7 @@ class ClientService:
             return list_clients
         except Exception as e:
             logger.error(f"Internal failure while fetching all clients: {str(e)}")
-            raise InternalServerError
+            raise InternalServerError()
     
     def get_client_by_id(self, client_id: str):
         try:
@@ -81,7 +81,7 @@ class ClientService:
 
         except Exception as e:
             logger.error(f"Internal failure while fetching client by ID ({client_id}): {str(e)}")
-            raise InternalServerError
+            raise InternalServerError()
     
     def get_client_by_email(self, email: str):
         try:
@@ -99,7 +99,7 @@ class ClientService:
 
         except Exception as e:
             logger.error(f"Internal failure while fetching client by Email ({email}): {str(e)}")
-            raise InternalServerError
+            raise InternalServerError()
     
     def update_client(self, client_id: str, update_data: ClientDomain):
         try:
@@ -148,7 +148,7 @@ class ClientService:
 
         except Exception as e:
             logger.error(f"Internal failure while updating client ({client_id}): {str(e)}")
-            raise InternalServerError
+            raise InternalServerError()
 
     def delete_client(self, client_id: str):
         try:
@@ -175,4 +175,4 @@ class ClientService:
 
         except Exception as e:
             logger.error(f"Internal failure while deleting client ({client_id}): {str(e)}")
-            raise InternalServerError
+            raise InternalServerError()

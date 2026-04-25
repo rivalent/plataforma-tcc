@@ -13,6 +13,7 @@ class QuoteService:
 
     def get_quote(self, code: str) -> QuoteDomain:
         try:
+            code = code.replace(" ", "").strip().upper()
             logger.info(f"Starting quote retrieval routine for code: {code}")
  
             logger.debug(f"Querying database for existing cached quote: {code}")
@@ -47,6 +48,7 @@ class QuoteService:
 
     def fetch_and_update_quote(self, code: str) -> QuoteDomain:
         try:
+            code = code.replace(" ", "").strip().upper()
             logger.info(f"Initiating external API request to fetch live quote for: {code}")
             url = "https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,GBP-BRL,CNY-BRL"
             
@@ -80,12 +82,11 @@ class QuoteService:
                     logger.info(f"Quotes fetched and cached successfully. Returning requested code: {code}")
                     return requested_quote
 
-                else:
-                    logger.error(f"Routine interrupted: Requested currency {code} not found in parsed data.")
-                    raise QuoteServiceUnavailable(f"Currency {code} not found.")
+                logger.error(f"Requested currency {code} not found in parsed data.")
+                raise QuoteServiceUnavailable(f"Currency {code} not found.")
 
-            else:
-                logger.warning(f"External API failed with status code {response.status_code}. Response: {response.text}")
+            logger.error(f"External API failed with status code {response.status_code}. Response: {response.text}")
+            raise QuoteServiceUnavailable("Quotes API returned an unexpected status code.")
 
         except QuoteServiceUnavailable as e:
             raise e

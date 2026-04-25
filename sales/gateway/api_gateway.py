@@ -1,5 +1,6 @@
 import requests
 from shared.logger_config import LoggerFactory
+from sales.exceptions import ExternalServiceUnavailable
 
 logger = LoggerFactory.get_logger("SalesGatewayLogger")
 
@@ -26,18 +27,17 @@ class APIGateway:
                 return None
                 
             logger.error(f"Unexpected status {response.status_code} from Clients API")
-            raise Exception("Failed to communicate with Clients service")
+            raise ExternalServiceUnavailable("Clients API")
             
         except requests.RequestException as e:
             logger.error(f"HTTP Connection error to Clients API: {str(e)}")
-            raise Exception("Clients service is unreachable")
+            raise ExternalServiceUnavailable("Clients API")
 
     def get_product(self, product_id: str) -> dict:
         try:
             url = f"{self.products_url}/products/{product_id}"
             logger.info(f"Gateway: Requesting product data from {url}")
 
-            
             response = requests.get(url, timeout=5)
             
             if response.status_code == 200:
@@ -46,11 +46,11 @@ class APIGateway:
                 return None
                 
             logger.error(f"Unexpected status {response.status_code} from Products API")
-            raise Exception("Failed to communicate with Products service")
+            raise ExternalServiceUnavailable("Products API")
             
         except requests.RequestException as e:
             logger.error(f"HTTP Connection error to Products API: {str(e)}")
-            raise Exception("Products service is unreachable")
+            raise ExternalServiceUnavailable("Products API")
     
     def update_product_stock(self, product_id: str, new_quantity: int) -> bool:
         try:
@@ -66,11 +66,11 @@ class APIGateway:
                 return False
             
             logger.error(f"Unexpected status {response.status_code} from Products API during stock update")
-            raise Exception("Failed to communicate with Products service for stock update")
+            raise ExternalServiceUnavailable("Products API")
             
         except requests.RequestException as e:
             logger.error(f"HTTP Connection error to Products API during stock update: {str(e)}")
-            raise Exception("Products service is unreachable for stock update")
+            raise ExternalServiceUnavailable("Products API")
 
     def get_all_quotes(self) -> list:
         try:
@@ -83,8 +83,8 @@ class APIGateway:
                 return response.json().get("data", [])
                 
             logger.error(f"Unexpected status {response.status_code} from Quotes API")
-            return []
+            raise ExternalServiceUnavailable("Quotes API")
             
         except requests.RequestException as e:
             logger.error(f"HTTP Connection error to Quotes API: {str(e)}")
-            return []
+            raise ExternalServiceUnavailable("Quotes API")

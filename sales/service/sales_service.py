@@ -3,8 +3,9 @@ from sales.domain.sales_domain import SaleDomain, SaleItemDomain, SaleStatus
 from sales.gateway.api_gateway import APIGateway
 from sales.exceptions import (
     SaleNotFound, InvalidSaleState, EmptySaleCannotBeCompleted,
-    ProductIntegrationError, InsufficientStockIntegration, 
-    ExternalServiceUnavailable, DatabaseError
+    ClientIntegrationError, ProductIntegrationError,
+    InsufficientStockIntegration, ExternalServiceUnavailable,
+    DatabaseError
 )
 from shared.logger_config import LoggerFactory
 from datetime import datetime, timezone
@@ -21,10 +22,11 @@ class SalesService:
         try:
             logger.info("Starting sale saving routine")
             
+            client_id = client_id.replace(" ", "").strip()
             client_data = self.gateway.get_client(client_id)
             if not client_data:
                 logger.warning(f"Sale rejected: Client {client_id} not found via API")
-                raise Exception(f"Client {client_id} does not exist or is inactive.")
+                raise ClientIntegrationError(client_id)
             
             domain_items = []
             sale_id = str(ULID())
@@ -39,12 +41,12 @@ class SalesService:
                 
                 if not product_data:
                     logger.warning(f"Sale rejected: Product {product_id} not found via API")
-                    raise Exception(f"Product {product_id} does not exist.")
+                    raise ProductIntegrationError(product_id)
                 
                 available_qty = product_data["quantity"]
                 if requested_qty > available_qty:
                     logger.warning(f"Sale rejected: Insufficient stock for {product_id}. Requested: {requested_qty}, Available: {available_qty}")
-                    raise Exception(f"Insufficient stock for product {product_id}.")
+                    raise InsufficientStockIntegration(product_id, requested_qty)
                 
                 domain_items.append(SaleItemDomain(
                     sell_id=sale_id,
@@ -98,6 +100,7 @@ class SalesService:
     
     def get_sale_by_product_id(self, product_id: str) -> list[SaleDomain]:
         try:
+            product_id = product_id.replace(" ", "").strip()
             logger.info(f"Fetching sales by Product ID: {product_id}")
             sales = self.repo.get_by_product(product_id)
 
@@ -136,6 +139,7 @@ class SalesService:
     
     def count_sales_by_product_and_status(self, product_id: str, status: int) -> int:
         try:
+            product_id = product_id.replace(" ", "").strip()
             logger.info(f"Counting sales for Product ID: {product_id} and status: {status}")
             count = self.repo.count_by_product_and_status(product_id, status)
             logger.info(f"Counted {count} sales for Product ID: {product_id} and status: {status}")
@@ -194,6 +198,10 @@ class SalesService:
             prices_dict = {"BRL": round(total_brl, 2)}
             quotes = self.gateway.get_all_quotes()
             
+            if not quotes:
+                logger.error("Failed to obtain quotes from the Quotes API while finishing sale.")
+                raise ExternalServiceUnavailable("Quotes API")
+
             for q in quotes:
                 quote_value = q.get("value", 0)
                 if quote_value > 0:

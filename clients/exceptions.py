@@ -1,10 +1,14 @@
 class BaseError(Exception):
-    pass
+    def __init__(self, message: str):
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return self.message
 
 class ClientAlreadyExists(BaseError):
     def __init__(self, email: str):
-        self.message = f"Client with email '{email}' already exists."
-        super().__init__(self.message)
+        super().__init__(f"Client with email '{email}' already exists.")
 
 class ClientNotFound(BaseError):
     def __init__(self, client_id: str):

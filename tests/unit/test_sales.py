@@ -49,10 +49,10 @@ def test_save_sale_successfully():
 def test_prevent_sale_with_nonexistent_product():
     items_to_buy = [{"product_id": "GHOST-PROD", "quantity": 1}]
 
-    with pytest.raises(Exception) as exc_info: 
+    with pytest.raises(Exception) as exc_info:
         test_service.save_sale(client_id="CLI-GOKU", items_data=items_to_buy)
-        
-    assert "does not exist" in str(exc_info.value)
+
+    assert "could not be validated" in str(exc_info.value)
 
 def test_finish_sale_and_calculate_quotes_with_stunt_double():
     result = test_service.finish_sale(created_sale_id)

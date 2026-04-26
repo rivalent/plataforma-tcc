@@ -5,6 +5,6 @@ source .venv/bin/activate
 pip install -q -r requirements.txt
 
 echo "Iniciando testes unitários"
-PYTHONPATH=. pytest tests/unit/ -v
+PYTHONPATH=. pytest tests/unit/ -v -W ignore
 echo "Testes unitários finalizados"
 deactivate

@@ -13,3 +13,7 @@ class DatabaseError(BaseError):
 class ProductNotFound(BaseError):
     def __init__(self, identifier: str):
         super().__init__(f"Product not found or inactive: {identifier}")
+
+class UnsupportedCurrency(BaseError):
+    def __init__(self, currency_code: str):
+        super().__init__(f"The Currency {currency_code} is not suported.")

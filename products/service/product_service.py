@@ -1,6 +1,7 @@
 from products.repository.product_repository import ProductRepository
 from products.domain.product_domain import ProductDomain
-from products.exceptions import ProductNotFound, DatabaseError
+from products.exceptions import ProductNotFound, DatabaseError, UnsupportedCurrency
+from products.gateway.quotes_gateway import QuotesGateway
 from shared.logger_config import LoggerFactory
 from datetime import datetime, timezone
 from ulid import ULID
@@ -8,8 +9,9 @@ from ulid import ULID
 logger = LoggerFactory.get_logger("ProductServiceLogger")
 
 class ProductService:
-    def __init__(self, repo: ProductRepository):
+    def __init__(self, repo: ProductRepository, quotes_gateway: QuotesGateway):
         self.repo = repo
+        self.quotes_gateway = quotes_gateway
 
     def create_product(self, name: str, desc: str, price: float, quantity: int):
         try:
@@ -45,24 +47,44 @@ class ProductService:
             logger.error(f"Internal failure while creating product: {str(e)}")
             raise e
     
-    def search(self, min_price: float = None, max_price: float = None, name_or_desc: str = None, min_quantity: int = None) -> list[ProductDomain]:
+    def search(self, min_price: float = None, max_price: float = None, name_or_desc: str = None, min_quantity: int = None, currency: str = None) -> list[ProductDomain]:
         try:
             logger.info("Starting product search routine")
+            
+            currency = currency.replace(" ", "").strip().upper() if currency else None
+            if currency:
+                quote = self.quotes_gateway.get_quote(currency)
+
+                if min_price is not None:
+                    min_price = round(min_price * quote, 2)
+
+                if max_price is not None:
+                    max_price = round(max_price * quote, 2)
+
+                logger.debug(f"Converted prices for currency {currency} (rate: {quote}): min_price={min_price}, max_price={max_price}")
             
             min_price = round(min_price, 2) if min_price is not None else None
             max_price = round(max_price, 2) if max_price is not None else None
             name_or_desc = name_or_desc.strip().lower() if name_or_desc is not None else None
             min_quantity = min_quantity if min_quantity is not None else None
 
-            logger.debug(f"Applying search filters - min_price: {min_price}, max_price: {max_price}, name_or_desc: {name_or_desc}, min_quantity: {min_quantity}")
+            logger.debug(f"Applying search filters -> min_price: {min_price}, max_price: {max_price}, name_or_desc: {name_or_desc}, min_quantity: {min_quantity}, currency: {currency}")
             
             results = self.repo.search(min_price, max_price, name_or_desc, min_quantity)
+
+            if results:
+                all_quotes = self.quotes_gateway.get_all_quotes()
+                for product in results:
+                    product.calculate_prices_from_quotes(all_quotes)
 
             count = len(results) if results else 0
             logger.info(f"Product search completed. Found {count} items.")
             
             return results
 
+        except UnsupportedCurrency as e:
+            logger.warning(f"Invalid currency provided: {currency}. {str(e)}")
+            raise e
         except DatabaseError as e:
             raise e
         except Exception as e:
@@ -79,6 +101,9 @@ class ProductService:
             if not product or not product.active:
                 logger.warning(f"Routine interrupted: Product not found or inactive ({product_id})")
                 raise ProductNotFound(product_id)
+            
+            all_quotes = self.quotes_gateway.get_all_quotes()
+            product.calculate_prices_from_quotes(all_quotes)
             
             logger.debug(f"Product successfully retrieved: {product_id}")
             return product
@@ -154,7 +179,7 @@ class ProductService:
         except Exception as e:
             logger.error(f"Internal failure while updating stock for product ({product_id}): {str(e)}")
             raise e
-    
+
     def delete_product(self, product_id: str):
         try:
             product_id = product_id.replace(" ", "").strip()

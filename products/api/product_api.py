@@ -1,7 +1,8 @@
 from products.repository.sqlite_product_repository import SqliteProductRepository
 from products.service.product_service import ProductService
+from products.gateway.quotes_gateway import QuotesGateway
 from products.schema.product_schema import ProductCreateRequest, ProductUpdateRequest, ProductStockUpdateRequest
-from products.exceptions import ProductNotFound, DatabaseError
+from products.exceptions import ProductNotFound, DatabaseError, UnsupportedCurrency
 from shared.response_formatter import format_response
 from shared.database import SqliteManager
 from fastapi import APIRouter, status
@@ -11,7 +12,8 @@ from time import time
 router = APIRouter()
 manager = SqliteManager("products/database", "db_products.db")
 repo = SqliteProductRepository(manager)
-service = ProductService(repo)
+quotes_gateway = QuotesGateway("http://quotes-api:8000")
+service = ProductService(repo, quotes_gateway)
 
 @router.post('/products', status_code=status.HTTP_201_CREATED)
 def create_product(product_data: ProductCreateRequest):
@@ -42,10 +44,10 @@ def create_product(product_data: ProductCreateRequest):
         )
 
 @router.get('/products/search', status_code=status.HTTP_200_OK)
-def search_products(min_price: float = None, max_price: float = None, name_or_desc: str = None, min_quantity: int = None):
+def search_products(min_price: float = None, max_price: float = None, name_or_desc: str = None, min_quantity: int = None, currency: str = None):
     start_time = time()
     try:
-        results = service.search(min_price, max_price, name_or_desc, min_quantity)
+        results = service.search(min_price, max_price, name_or_desc, min_quantity, currency)
 
         return format_response(
             data=results, 
@@ -53,6 +55,11 @@ def search_products(min_price: float = None, max_price: float = None, name_or_de
             message="Product search completed successfully"
         )
 
+    except UnsupportedCurrency as e:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=format_response(start_time=start_time, message="Bad request", error=str(e))
+        )
     except DatabaseError as e:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 

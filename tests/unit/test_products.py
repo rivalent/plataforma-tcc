@@ -1,16 +1,30 @@
 from products.service.product_service import ProductService
 from products.repository.sqlite_product_repository import SqliteProductRepository
 from products.domain.product_domain import ProductDomain
-from products.exceptions import ProductNotFound
+from products.exceptions import ProductNotFound, UnsupportedCurrency
 from shared.database import SqliteManager
 import os
 import time
 import pytest
 
+class FakeQuotesGateway:
+    def get_all_quotes(self):
+        return {"USD": 5.0, "EUR": 6.0}
+
+    def get_quote(self, currency_code: str):
+        supported = {"USD": 5.0, "EUR": 6.0}
+        currency_code = currency_code.strip().upper()
+
+        if currency_code not in supported:
+            raise UnsupportedCurrency(currency_code)
+
+        return supported[currency_code]
+
+
 test_manager = SqliteManager("products/database", "db_test_products.db")
 test_repo = SqliteProductRepository(test_manager)
 test_repo.create_tables()
-test_service = ProductService(test_repo)
+test_service = ProductService(test_repo, FakeQuotesGateway())
 
 UNIQUE_PRODUCT_NAME = f"odm gear {int(time.time())}"
 created_product_id = None

@@ -16,7 +16,7 @@ class APIGateway:
 
     def get_client(self, client_id: str) -> dict:
         try:
-            url = f"{self.clients_url}/clients/{client_id}"
+            url = f"{self.clients_url}/{client_id}"
             logger.info(f"Gateway: Requesting client data from {url}")
             
             response = requests.get(url, timeout=5)
@@ -35,7 +35,7 @@ class APIGateway:
 
     def get_product(self, product_id: str) -> dict:
         try:
-            url = f"{self.products_url}/products/{product_id}"
+            url = f"{self.products_url}/{product_id}"
             logger.info(f"Gateway: Requesting product data from {url}")
 
             response = requests.get(url, timeout=5)
@@ -54,7 +54,7 @@ class APIGateway:
     
     def update_product_stock(self, product_id: str, new_quantity: int) -> bool:
         try:
-            url = f"{self.products_url}/products/{product_id}/stock"
+            url = f"{self.products_url}/{product_id}/stock"
             logger.info(f"Gateway: Updating product stock via {url} with new quantity {new_quantity}")
 
             response = requests.put(url, json={"quantity": new_quantity}, timeout=5)
@@ -74,7 +74,7 @@ class APIGateway:
 
     def get_all_quotes(self) -> list:
         try:
-            url = f"{self.quotes_url}/quotes"
+            url = f"{self.quotes_url}/"
             logger.info(f"Gateway: Requesting quotes data from {url}")
             
             response = requests.get(url, timeout=5)

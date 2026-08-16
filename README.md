@@ -39,6 +39,8 @@ Todas as respostas são formatadas em JSON com campos de mensagem, timestamp, el
 
 ## Arquitetura e Decisões de Design
 
+- **API Gateway (NGINX):** O sistema possui um ponto único de entrada (porta 80). O tráfego externo passa por um proxy reverso que roteia as requisições para os serviços correspondentes, mantendo as APIs isoladas e protegidas em uma rede interna.
+
 - **Isolamento de Contêineres:** Cada microsserviço opera de forma 100% independente em seu próprio contêiner Docker, garantindo que a falha de um não derrube o sistema inteiro.
 
 - **Banco por Serviço:** Para garantir o desacoplamento real, cada API gerencia seu próprio banco de dados de forma isolada.
@@ -58,6 +60,14 @@ Antes de começar, certifique-se de ter as seguintes ferramentas instaladas na s
 - **Python 3** (para executar os testes localmente)
 - **Docker** e **Docker Compose** (para rodar a plataforma)
 
+## Clonando o repositório
+
+Para baixar o código do projeto para a sua máquina, abra o seu terminal e execute:
+
+```bash
+git clone https://github.com/rivalent/plataforma-tcc.git
+cd plataforma-tcc
+```
 ## Para rodar os testes unitários
 
 Execute o script na raiz do projeto:
@@ -67,15 +77,13 @@ Execute o script na raiz do projeto:
 ```
 
 ## Como iniciar o ambiente com Docker
-
-Subir todos os serviços e infraestrutura com o Docker Compose:
+Subir todos os serviços e infraestrutura com o Docker Compose (utilize --build para garantir as imagens mais recentes e -d para rodar em segundo plano):
 
 ```bash
-docker compose up
+docker compose up -d --build
 ```
 
-## Para rodar os testes de integração (Precisar do Docker ativo)
-
+## Para rodar os testes de integração (Precisa do Docker ativo)
 Execute o script na raiz do projeto:
 
 ```bash
@@ -83,12 +91,12 @@ Execute o script na raiz do projeto:
 ```
 
 ## Acessando as APIs (Swagger UI)
-Com os contêineres rodando, você pode testar cada serviço de maneira simples e interativa pelo navegador através de suas documentações automáticas:
+Com os contêineres rodando, você pode testar cada serviço de maneira simples e interativa pelo navegador através de suas documentações automáticas, centralizadas no API Gateway:
 
-- API Clientes: http://localhost:8001/docs
+API Clientes: http://localhost/clients/docs
 
-- API Produtos: http://localhost:8002/docs
+API Produtos: http://localhost/products/docs
 
-- API Cotações: http://localhost:8003/docs
+API Cotações: http://localhost/quotes/docs
 
-- API Vendas: http://localhost:8004/docs
+API Vendas: http://localhost/sales/docs

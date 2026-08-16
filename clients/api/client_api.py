@@ -13,7 +13,7 @@ manager = SqliteManager("clients/database", "db_clients.db")
 repo = SqliteClientRepository(manager)
 service = ClientService(repo)
 
-@router.post('/clients', status_code=status.HTTP_201_CREATED)
+@router.post('/', status_code=status.HTTP_201_CREATED)
 def create_client(client_data: ClientCreateRequest):
     start_time = time()
     try:
@@ -41,7 +41,7 @@ def create_client(client_data: ClientCreateRequest):
             content=format_response(start_time=start_time, message="Internal server error", error=str(e))
         )
 
-@router.get('/clients', status_code=status.HTTP_200_OK)
+@router.get('/', status_code=status.HTTP_200_OK)
 def get_all_client():
     start_time = time()
     try:
@@ -59,7 +59,7 @@ def get_all_client():
             content=format_response(start_time=start_time, message="Internal server error", error=str(e))
         )
 
-@router.get('/clients/{client_id}', status_code=status.HTTP_200_OK)
+@router.get('/{client_id}', status_code=status.HTTP_200_OK)
 def get_client_by_id(client_id: str):
     start_time = time()
     try:
@@ -88,7 +88,7 @@ def get_client_by_id(client_id: str):
             content=format_response(start_time=start_time, message="Request failed", error=str(e))
         )
 
-@router.get('/clients/email/{client_email}', status_code=status.HTTP_200_OK)
+@router.get('/email/{client_email}', status_code=status.HTTP_200_OK)
 def get_client_by_email(client_email: str):
     start_time = time()
     try:
@@ -112,7 +112,7 @@ def get_client_by_email(client_email: str):
             content=format_response(start_time=start_time, message="Internal server error", error=str(e))
         )
 
-@router.put('/clients/{client_id}', status_code=status.HTTP_200_OK)
+@router.put('/{client_id}', status_code=status.HTTP_200_OK)
 def update_client(client_id: str, client_data: ClientUpdateRequest):
     start_time = time()
     try:
@@ -143,7 +143,7 @@ def update_client(client_id: str, client_data: ClientUpdateRequest):
             content=format_response(start_time=start_time, message="Internal server error", error=str(e))
         )
 
-@router.delete('/clients/{client_id}', status_code=status.HTTP_200_OK)
+@router.delete('/{client_id}', status_code=status.HTTP_200_OK)
 def delete_client(client_id: str):
     start_time = time()
     try:

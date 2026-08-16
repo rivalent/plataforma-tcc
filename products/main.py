@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Stopping Products service lifespan")
 
-app = FastAPI(title="Products API", lifespan=lifespan)
+app = FastAPI(title="Products API", lifespan=lifespan, root_path="/products")
 app.include_router(product_router)
 
 @app.get("/")

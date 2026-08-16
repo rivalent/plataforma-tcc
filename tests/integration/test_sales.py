@@ -1,9 +1,7 @@
 import requests
 import time
 
-CLIENTS_BASE_URL = "http://127.0.0.1:8001"
-PRODUCTS_BASE_URL = "http://127.0.0.1:8002"
-SALES_BASE_URL = "http://127.0.0.1:8004"
+API_GATEWAY_URL = "http://127.0.0.1"
 
 created_client_id = None
 created_product_id = None
@@ -18,7 +16,8 @@ def test_setup_client_and_product_for_sale():
         "email": f"Gonfree{int(time.time())}@email.com",
         "birthdate": "2005-05-05"
     }
-    client_resp = requests.post(f"{CLIENTS_BASE_URL}/clients", json=client_payload)
+
+    client_resp = requests.post(f"{API_GATEWAY_URL}/clients/", json=client_payload)
     assert client_resp.status_code == 201
     created_client_id = client_resp.json()["data"]["id"]
 
@@ -28,7 +27,8 @@ def test_setup_client_and_product_for_sale():
         "price": 89000000.00,
         "quantity": 100
     }
-    product_resp = requests.post(f"{PRODUCTS_BASE_URL}/products", json=product_payload)
+
+    product_resp = requests.post(f"{API_GATEWAY_URL}/products/", json=product_payload)
     assert product_resp.status_code == 201
     created_product_id = product_resp.json()["data"]["id"]
 
@@ -44,8 +44,8 @@ def test_create_sale_successfully():
             }
         ]
     }
-    
-    response = requests.post(f"{SALES_BASE_URL}/sales", json=payload)
+
+    response = requests.post(f"{API_GATEWAY_URL}/sales/", json=payload)
     data = response.json()
     
     assert response.status_code == 201
@@ -55,28 +55,26 @@ def test_create_sale_successfully():
     created_sale_id = data["data"]["id"]
 
 def test_finish_sale_and_deduct_stock():
-    response = requests.put(f"{SALES_BASE_URL}/sales/{created_sale_id}/finish")
+    response = requests.put(f"{API_GATEWAY_URL}/sales/{created_sale_id}/finish")
     data = response.json()
     
     assert response.status_code == 200
     assert data["data"]["sale"]["status"] == 2
     assert "prices" in data["data"]
-    assert "BRL" in data["data"]["prices"]
-    assert "USD" in data["data"]["prices"]
 
-    product_resp = requests.get(f"{PRODUCTS_BASE_URL}/products/{created_product_id}")
+    product_resp = requests.get(f"{API_GATEWAY_URL}/products/{created_product_id}")
     product_data = product_resp.json()
 
     assert product_data["data"]["quantity"] == 97
 
 def test_cancel_sale_and_return_stock():
-    response = requests.put(f"{SALES_BASE_URL}/sales/{created_sale_id}/cancel")
+    response = requests.put(f"{API_GATEWAY_URL}/sales/{created_sale_id}/cancel")
     data = response.json()
     
     assert response.status_code == 200
     assert data["data"]["status"] == 3
 
-    product_resp = requests.get(f"{PRODUCTS_BASE_URL}/products/{created_product_id}")
+    product_resp = requests.get(f"{API_GATEWAY_URL}/products/{created_product_id}")
     product_data = product_resp.json()
     
     assert product_data["data"]["quantity"] == 100

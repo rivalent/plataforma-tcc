@@ -20,7 +20,7 @@ manager = SqliteManager("sales/database", "db_sales.db")
 repo = SqliteSalesRepository(manager)
 service = SalesService(repo, gateway)
 
-@router.post('/sales', status_code=status.HTTP_201_CREATED)
+@router.post('/', status_code=status.HTTP_201_CREATED)
 def create_sale(sale_data: SaleCreateRequest):
     start_time = time()
     try:
@@ -76,7 +76,7 @@ def create_sale(sale_data: SaleCreateRequest):
             content=format_response(start_time=start_time, message="Bad request", error=str(e))
         )
 
-@router.get('/sales/{sale_id}', status_code=status.HTTP_200_OK)
+@router.get('/{sale_id}', status_code=status.HTTP_200_OK)
 def get_sale_by_id(sale_id: str):
     start_time = time()
     try:
@@ -104,7 +104,7 @@ def get_sale_by_id(sale_id: str):
             content=format_response(start_time=start_time, message="Bad request", error=str(e))
         )
 
-@router.get('/sales/product/{product_id}', status_code=status.HTTP_200_OK)
+@router.get('/product/{product_id}', status_code=status.HTTP_200_OK)
 def get_sales_by_product_id(product_id: str):
     start_time = time()
     try:
@@ -127,7 +127,7 @@ def get_sales_by_product_id(product_id: str):
             content=format_response(start_time=start_time, message="Bad request", error=str(e))
         )
 
-@router.get('/sales/status/{status}', status_code=status.HTTP_200_OK)
+@router.get('/status/{status}', status_code=status.HTTP_200_OK)
 def get_sales_by_status(status: int):
     start_time = time()
     try:
@@ -150,7 +150,7 @@ def get_sales_by_status(status: int):
             content=format_response(start_time=start_time, message="Bad request", error=str(e))
         )
 
-@router.get('/sales/count/product/{product_id}/status/{status}', status_code=status.HTTP_200_OK)
+@router.get('/count/product/{product_id}/status/{status}', status_code=status.HTTP_200_OK)
 def count_sales_by_product_and_status(product_id: str, status: int):
     start_time = time()
     try:
@@ -173,7 +173,7 @@ def count_sales_by_product_and_status(product_id: str, status: int):
             content=format_response(start_time=start_time, message="Bad request", error=str(e))
         )
 
-@router.put('/sales/{sale_id}/finish', status_code=status.HTTP_200_OK)
+@router.put('/{sale_id}/finish', status_code=status.HTTP_200_OK)
 def finish_sale(sale_id: str):
     start_time = time()
     try:
@@ -226,7 +226,7 @@ def finish_sale(sale_id: str):
             content=format_response(start_time=start_time, message="The sale could not be completed", error=str(e))
         )
 
-@router.put('/sales/{sale_id}/cancel', status_code=status.HTTP_200_OK)
+@router.put('/{sale_id}/cancel', status_code=status.HTTP_200_OK)
 def cancel_sale(sale_id: str):
     start_time = time()
     try:

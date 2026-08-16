@@ -12,7 +12,7 @@ manager = SqliteManager("quotes/database", "db_quotes.db")
 repo = SqliteQuoteRepository(manager)
 service = QuoteService(repo)
 
-@router.get('/quotes/{code}', status_code=status.HTTP_200_OK)
+@router.get('/{code}', status_code=status.HTTP_200_OK)
 def get_quote_by_code(code: str):
     start_time = time()
     try:
@@ -41,7 +41,7 @@ def get_quote_by_code(code: str):
              content=format_response(start_time=start_time, message="Unexpected error", error=str(e))
         )
 
-@router.get('/quotes', status_code=status.HTTP_200_OK)
+@router.get('/', status_code=status.HTTP_200_OK)
 def get_all_quotes():
     start_time = time()
     try:

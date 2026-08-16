@@ -1,14 +1,14 @@
 import requests
 import time
 
-BASE_URL = "http://127.0.0.1:8001"
+BASE_URL = "http://127.0.0.1"
 
 UNIQUE_EMAIL = f"test.user.{int(time.time())}@rmail.com"
 
 created_client_id = None
 
 def test_return_success_when_fetching_client_list():
-    response = requests.get(f"{BASE_URL}/clients")
+    response = requests.get(f"{BASE_URL}/clients/")
     data = response.json()
     
     assert response.status_code == 200
@@ -24,7 +24,7 @@ def test_create_client_successfully():
         "birthdate": "1975-04-07"
     }
     
-    response = requests.post(f"{BASE_URL}/clients", json=payload)
+    response = requests.post(f"{BASE_URL}/clients/", json=payload)
     data = response.json()
     
     assert response.status_code == 201
@@ -40,7 +40,7 @@ def test_reject_client_with_duplicated_email():
         "birthdate": "1958-01-02"
     }
     
-    response = requests.post(f"{BASE_URL}/clients", json=payload)
+    response = requests.post(f"{BASE_URL}/clients/", json=payload)
     
     assert response.status_code == 409
 

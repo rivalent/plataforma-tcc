@@ -1,7 +1,7 @@
 import requests
 import time
 
-BASE_URL = "http://127.0.0.1:8002"
+BASE_URL = "http://127.0.0.1"
 UNIQUE_PRODUCT_NAME = f"Dragon Balls {int(time.time())}"
 
 created_product_id = None
@@ -16,7 +16,7 @@ def test_create_product_successfully():
         "quantity": 7
     }
 
-    response = requests.post(f"{BASE_URL}/products", json=payload)
+    response = requests.post(f"{BASE_URL}/products/", json=payload)
     data = response.json()
 
     assert response.status_code == 201

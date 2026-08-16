@@ -15,7 +15,7 @@ repo = SqliteProductRepository(manager)
 quotes_gateway = QuotesGateway("http://quotes-api:8000")
 service = ProductService(repo, quotes_gateway)
 
-@router.post('/products', status_code=status.HTTP_201_CREATED)
+@router.post('/', status_code=status.HTTP_201_CREATED)
 def create_product(product_data: ProductCreateRequest):
     start_time = time()
     try:
@@ -43,7 +43,7 @@ def create_product(product_data: ProductCreateRequest):
             content=format_response(start_time=start_time, message="Unexpected error", error=str(e))
         )
 
-@router.get('/products/search', status_code=status.HTTP_200_OK)
+@router.get('/search', status_code=status.HTTP_200_OK)
 def search_products(min_price: float = None, max_price: float = None, name_or_desc: str = None, min_quantity: int = None, currency: str = None):
     start_time = time()
     try:
@@ -71,7 +71,7 @@ def search_products(min_price: float = None, max_price: float = None, name_or_de
             content=format_response(start_time=start_time, message="Unexpected error", error=str(e))
         )
 
-@router.get('/products/{product_id}', status_code=status.HTTP_200_OK)
+@router.get('/{product_id}', status_code=status.HTTP_200_OK)
 def get_product_by_id(product_id: str):
     start_time = time()
     try:
@@ -99,7 +99,7 @@ def get_product_by_id(product_id: str):
             content=format_response(start_time=start_time, message="Unexpected error", error=str(e))
         )
 
-@router.put('/products/{product_id}', status_code=status.HTTP_200_OK)
+@router.put('/{product_id}', status_code=status.HTTP_200_OK)
 def update_product(product_id: str, product_data: ProductUpdateRequest):
     start_time = time()
     try:
@@ -127,7 +127,7 @@ def update_product(product_id: str, product_data: ProductUpdateRequest):
             content=format_response(start_time=start_time, message="Unexpected error", error=str(e))
         )
 
-@router.put('/products/{product_id}/stock', status_code=status.HTTP_200_OK)
+@router.put('/{product_id}/stock', status_code=status.HTTP_200_OK)
 def update_product_stock(product_id: str, stock_data: ProductStockUpdateRequest):
     start_time = time()
     try:
@@ -151,7 +151,7 @@ def update_product_stock(product_id: str, stock_data: ProductStockUpdateRequest)
             content=format_response(start_time=start_time, message="Internal Error", error=str(e))
         )
 
-@router.delete('/products/{product_id}', status_code=status.HTTP_200_OK)
+@router.delete('/{product_id}', status_code=status.HTTP_200_OK)
 def delete_product(product_id: str):
     start_time = time()
     try:

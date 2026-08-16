@@ -1,9 +1,9 @@
 import requests
 
-BASE_URL = "http://127.0.0.1:8003"
+BASE_URL = "http://127.0.0.1"
 
 def test_list_all_quotes_successfully():
-    response = requests.get(f"{BASE_URL}/quotes")
+    response = requests.get(f"{BASE_URL}/quotes/")
     data = response.json()
     
     assert response.status_code == 200

@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Stopping Quotes service lifespan.")
 
-app = FastAPI(title="Quotes API", lifespan=lifespan)
+app = FastAPI(title="Quotes API", lifespan=lifespan, root_path="/quotes")
 app.include_router(quote_router)
 
 @app.get("/")

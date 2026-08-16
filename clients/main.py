@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Stopping Clients service lifespan.")
 
-app = FastAPI(title="Clients API", lifespan=lifespan)
+app = FastAPI(title="Clients API", lifespan=lifespan, root_path="/clients")
 app.include_router(client_router)
 
 @app.get("/")
